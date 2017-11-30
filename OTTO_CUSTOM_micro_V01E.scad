@@ -271,11 +271,11 @@ fudge=0.1;
 srvWdthX=25;
 srvDpthY=12.5;
 srvHghtZ=50;
-srvFlngtThck=2.5;
+srvFlngtThck=2.5; //thickness of the flange
 srvFlngtHght=15.9; //height under the flange
-srvFlngWdth=4.7;
+srvFlngWdth=4.7; //width of the flange (x2 + srvHghtZ = overall servo width)
 srvBgGearDia=12; //Dia of the big GearBox
-srvSmGearDia=7.5;
+srvSmGearDia=7.5;  //Dia of the small Gearbox
 srvScrewHdDia=3.6;
     
 echo(srvWdthX-srvFlngtThck-srvFlngtHght);
@@ -303,8 +303,16 @@ bo=0; //legacy offset
       }
     }
     //servo cutouts 1
-    translate([-srvWdthX/2,-srvDpthY/2,wallThickMin+hornThick]) cube([srvWdthX,srvDpthY,50]); //servo body
-    #translate([12,0,5]) rotate([0,90,0]) cylinder(d=srvScrewHdDia*1.2,h=4,$fn=30); //screw opening
+    difference() {
+        translate([-srvWdthX/2,-srvDpthY/2,wallThickMin+hornThick]) 
+            cube([srvWdthX,srvDpthY,50]); //servo body
+        translate([-srvWdthX/2+srvFlngtHght+srvFlngtThck,-3.8,wallThickMin+hornThick-fudge]) 
+            cube([srvWdthX-srvFlngtHght-srvFlngtThck,srvScrewHdDia+2*wallThick,7.5+fudge]); //screw box
+    }
+    #translate([-srvWdthX/2+srvFlngtHght+srvFlngtThck-fudge/2,0,9]) rotate([0,90,0]) cylinder(d=2.2,h=wallThick+fudge,$fn=20); //screw hole
+    
+    translate([12,0,9]) rotate([0,90,0])
+        cylinder(d=srvScrewHdDia*1.2,h=4,$fn=30); //screw opening
     
     //the hipAxisServs-horn
     //translate([0.5,0,2.6-(servo_type_hip=="mg90s"?0:1)]) rotate([0,0,90]) {
@@ -326,7 +334,7 @@ bo=0; //legacy offset
     }//cutouts2
     
     //windows
-    if(!leg_solid)
+    *if(!leg_solid)
       mirrory() translate([-11.525,-8.3,4.9]) mirror([0,1,0]) rotate([90,0]) linear_extrude(5) {
       //square([21.565,12.93]);
       polygon([[0,0],[0,5.7],[6.1,12.93],[21.565-5.7,12.93],[21.565,5.7],[21.565,0]]);
@@ -335,7 +343,7 @@ bo=0; //legacy offset
   }
   
   //Servo fixation
-  difference() {
+  *difference() {
     translate([-srvWdthX/2+srvFlngtHght+srvFlngtThck,-3.8,wallThickMin+hornThick-fudge]) 
         cube([srvWdthX-srvFlngtHght-srvFlngtThck,srvScrewHdDia+2*wallThick,7.5+fudge]); //screw box    
     *translate([8,-3,5]) cube([5,srvScrewHdDia,8]); // screw head recess
